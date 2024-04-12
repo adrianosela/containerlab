@@ -1,10 +1,13 @@
 module github.com/srl-labs/containerlab
 
-go 1.21
+go 1.22
+
+toolchain go1.22.2
 
 require (
 	github.com/a8m/envsubst v1.4.2
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
+	github.com/borderzero/border0-go v1.4.28
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containernetworking/plugins v1.4.1
 	github.com/containers/common v0.58.1
@@ -44,10 +47,10 @@ require (
 	github.com/vishvananda/netlink v1.2.1-beta.2.0.20240301075815-8ac83962db51
 	github.com/weaveworks/ignite v0.10.0
 	go.uber.org/mock v0.4.0
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.22.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
-	golang.org/x/sys v0.18.0
-	golang.org/x/term v0.18.0
+	golang.org/x/sys v0.19.0
+	golang.org/x/term v0.19.0
 	gopkg.in/yaml.v2 v2.4.0
 	sigs.k8s.io/kind v0.22.0
 )
@@ -61,6 +64,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.15.5 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cilium/ebpf v0.12.3 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/containerd/cgroups/v3 v3.0.3 // indirect
@@ -208,7 +212,7 @@ require (
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/schema v1.2.1 // indirect
-	github.com/gosimple/slug v1.12.0 // indirect
+	github.com/gosimple/slug v1.12.0
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hairyhenderson/go-fsimpl v0.0.0-20220529183339-9deae3e35047 // indirect
 	github.com/hairyhenderson/toml v0.4.2-0.20210923231440-40456b8e66cf // indirect
