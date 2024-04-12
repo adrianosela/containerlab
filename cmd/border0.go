@@ -156,3 +156,75 @@ var border0InitCmd = &cobra.Command{
 		return nil
 	},
 }
+
+var border0InitCmd = &cobra.Command{
+	Use:   "init",
+	Short: "Initializes resources for a new lab with the border0.com service",
+
+	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx, cancel := context.WithCancel(cmd.Context())
+		defer cancel()
+
+		if border0LabName == "" {
+			border0LabName = fmt.Sprintf("border-clab-%d", time.Now().Unix()%10000)
+		}
+		if !slug.IsSlug(border0LabName) {
+			return fmt.Errorf("lab-name must be in slug format e.g. my-border-clab-123")
+		}
+
+		// always force a fresh login for now...
+		if err := border0_api.Login(ctx, border0Email, border0Password, border0DisableBrowser); err != nil {
+			return fmt.Errorf("failed to authenticate with Border0: %v", err)
+		}
+
+		// initialize border0 sdk
+		api := border0.NewAPIClient(client.WithRetryMax(2))
+
+		// create new connector
+		connector, err := api.CreateConnector(ctx, &client.Connector{
+			Name:                     border0LabName,
+			Description:              "ContainerLab Connector",
+			BuiltInSshServiceEnabled: false,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create new Border0 connector: %v", err)
+		}
+
+		// create new docker_exec socket
+		_, err = api.CreateSocket(ctx, &client.Socket{
+			Name:             fmt.Sprintf("%s-containers", border0LabName),
+			Description:      "Docker Exec socket for ContainerLab environment",
+			RecordingEnabled: true,
+			ConnectorID:      connector.ConnectorID,
+			SocketType:       service.ServiceTypeSsh,
+			UpstreamConfig: &service.Configuration{
+				ServiceType: service.ServiceTypeSsh,
+				SshServiceConfiguration: &service.SshServiceConfiguration{
+					SshServiceType:                    service.SshServiceTypeDockerExec,
+					DockerExecSshServiceConfiguration: &service.DockerExecSshServiceConfiguration{
+						// no filters (expose all containers)
+					},
+				},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create new Border0 socket: %v", err)
+		}
+
+		// create token for new connector
+		connectorToken, err := api.CreateConnectorToken(ctx, &client.ConnectorToken{
+			Name:        fmt.Sprintf("%s-token-%d", border0LabName, time.Now().Unix()%10000),
+			ExpiresAt:   client.FlexibleTime{Time: time.Time{}},
+			ConnectorID: connector.ConnectorID,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create new Border0 socket: %v", err)
+		}
+
+		fmt.Println("New lab initialized with the Border0 service!")
+		fmt.Println("Add the following configuration to your *.clab.yaml file:")
+		fmt.Println(fmt.Sprintf(border0NodeClabConfigTemplate, connectorToken.Token))
+
+		return nil
+	},
+}
